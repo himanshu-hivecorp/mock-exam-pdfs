@@ -1,0 +1,37 @@
+# Mock Exam PDFs - Apache Configuration for cPanel
+Options -Indexes
+ServerSignature Off
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Block direct access to sensitive files
+    RewriteRule ^(\.git|\.env|data/|composer\.(json|lock)) - [F,L]
+    RewriteRule \.(sqlite|sqlite3|db|sql|log|ini|sh)$ - [F,L]
+
+    # Don't rewrite real files or directories
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    RewriteRule ^post/([a-zA-Z0-9_-]+)/?$ post.php?slug=$1 [L,QSA]
+    RewriteRule ^exam/([a-zA-Z0-9_-]+)/?$ exam.php?slug=$1 [L,QSA]
+    RewriteRule ^category/([a-zA-Z0-9_-]+)/?$ category.php?slug=$1 [L,QSA]
+    RewriteRule ^download/([a-zA-Z0-9_-]+)/?$ download.php?slug=$1 [L,QSA]
+    RewriteRule ^upcoming-exams/?$ upcoming-exams.php [L,QSA]
+    RewriteRule ^search/?$ search.php [L,QSA]
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Security headers
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+<IfModule mod_deflate.c>
+    # Enable Gzip compression
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json application/xml
+</IfModule>
